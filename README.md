@@ -23,11 +23,11 @@ Today's Brief provides automated daily content updates covering current affairs 
 
 ## 🛠 Technologies Used
 
-- **Frontend**: Next.js 14, React 18, TypeScript
+- **Frontend**: Vite, React 18, TypeScript
 - **Styling**: Tailwind CSS with custom design system
+- **Routing**: React Router DOM
 - **Icons**: Lucide React
-- **Database**: Supabase (PostgreSQL) - *Integration in progress*
-- **Deployment**: Render (configured via render.yaml)
+- **Database**: Supabase (PostgreSQL)
 - **Content Management**: JSON webhook API for automated updates
 - **Data Validation**: AJV schema validation
 
@@ -44,7 +44,7 @@ Today's Brief provides automated daily content updates covering current affairs 
 1. **Clone the repository**
    ```bash
    git clone <your-repository-url>
-   cd todays-brief
+   cd today-brief
    ```
 
 2. **Install dependencies**
@@ -75,12 +75,13 @@ Today's Brief provides automated daily content updates covering current affairs 
 **Development Server**
 ```bash
 npm run dev
+# Application will be available at http://localhost:3000
 ```
 
 **Production Build**
 ```bash
 npm run build
-npm run start
+npm run preview
 ```
 
 **Linting**
@@ -94,18 +95,19 @@ Visit `http://localhost:3000` to view the application.
 
 ### Webhook Integration
 
-The application receives daily content updates via a webhook endpoint:
+The application receives daily content updates via webhook integration:
 
-- **Endpoint**: `POST /api/daily-update`
+- **Endpoint**: `/api/daily-update` (handled by React Router)
 - **Content Type**: `application/json`
 - **Validation**: Automatic payload validation using AJV schemas
-- **Storage**: Data will be persisted to Supabase database *(integration in progress)*
+- **Storage**: Data is persisted to Supabase database
 
 ### Current Data Flow
 
-1. **Sample Data**: Currently uses pre-loaded sample data for demonstration
-2. **Local Storage**: Temporary client-side storage for development
-3. **Future**: Full Supabase integration for persistent, centralized content management
+1. **Webhook Reception**: Daily content received via webhook
+2. **Validation**: Automatic payload validation and normalization
+3. **Database Storage**: Content stored in Supabase PostgreSQL database
+4. **Real-time Access**: Immediate availability across all application pages
 
 ### Content Structure
 
@@ -122,29 +124,27 @@ Each daily brief includes:
 ```
 ├── src/
 │   ├── components/          # React components
+│   ├── pages/              # Page components (React Router)
+│   ├── api/                # API handlers and webhook processing
 │   ├── types/              # TypeScript interfaces
 │   ├── utils/              # Utility functions and helpers
 │   └── App.tsx             # Main application component
-├── pages/                  # Next.js pages and API routes
-│   ├── api/               # API endpoints (webhook)
-│   ├── brief/[date].tsx   # Individual brief pages
-│   ├── archive.tsx        # Archive browsing
-│   ├── today.tsx          # Current day's brief
-│   └── index.tsx          # Landing page
+├── supabase/
+│   └── migrations/         # Database migration files
 ├── public/                # Static assets
-└── styles/                # Global styles
+└── index.html             # Main HTML template
 ```
 
 ## 🚀 Deployment
 
-### Render Deployment
+### Vite Deployment
 
-The project includes `render.yaml` configuration for easy deployment to Render:
+The project can be deployed to any static hosting service:
 
-1. Connect your GitHub repository to Render
-2. Render will automatically detect the configuration
-3. Set environment variables in Render dashboard
-4. Deploy with automatic builds on git push
+1. **Build the project**: `npm run build`
+2. **Deploy the `dist/` folder** to your hosting service
+3. **Configure environment variables** on your hosting platform
+4. **Set up webhook endpoint** for content updates
 
 ### Environment Variables for Production
 
@@ -155,11 +155,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_supabase_anon_key
 
 ## 🔄 Development Roadmap
 
-### Phase 1: Database Integration *(In Progress)*
-- [ ] Complete Supabase integration
-- [ ] Database schema setup with migrations
-- [ ] Webhook data persistence
-- [ ] Archive functionality with database queries
+### Phase 1: Core Features *(Completed)*
+- [x] Complete Supabase integration
+- [x] Database schema setup with migrations
+- [x] Webhook data persistence
+- [x] Archive functionality with database queries
+- [x] Vite + React Router setup
 
 ### Phase 2: Enhanced Features
 - [ ] User authentication and personalization
@@ -176,18 +177,18 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_supabase_anon_key
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/new-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## 📝 API Documentation
 
-### Webhook Endpoint
+### Webhook Integration
 
-**POST** `/api/daily-update`
+**Webhook Handler**: `/api/daily-update`
 
-Accepts daily brief data in JSON format. See `src/types/index.ts` for the complete `DailyBrief` interface.
+The application processes daily brief data in JSON format via webhook integration. See `src/types/index.ts` for the complete `DailyBrief` interface.
 
 **Example payload structure:**
 ```json
@@ -222,4 +223,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Note**: This project is actively under development. The Supabase integration is currently being implemented to replace the temporary localStorage system with persistent, centralized content management.
+**Note**: This project uses Vite for optimal development experience and Supabase for robust, scalable data management. The application is production-ready with full webhook integration and database persistence.

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Search, BookOpen, Archive, Home, Info } from 'lucide-react';
 
 interface HeaderProps {
@@ -10,7 +10,8 @@ interface HeaderProps {
 export default function Header({ onSearch, onNavigate }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +21,13 @@ export default function Header({ onSearch, onNavigate }: HeaderProps) {
   const handleNavigate = (section: string) => {
     switch (section) {
       case 'home':
-        router.push('/');
+        navigate('/');
         break;
       case 'today':
-        router.push('/today');
+        navigate('/today');
         break;
       case 'archive':
-        router.push('/archive');
+        navigate('/archive');
         break;
       case 'about':
         // Handle about page when created
@@ -43,7 +44,7 @@ export default function Header({ onSearch, onNavigate }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleNavigate('home')}>
             <BookOpen className="h-8 w-8 text-blue-600" />
             <h1 className="text-xl font-bold text-gray-900">Today's Brief</h1>
           </div>
@@ -52,19 +53,25 @@ export default function Header({ onSearch, onNavigate }: HeaderProps) {
           <nav className="hidden md:flex items-center space-x-8">
             <button
               onClick={() => handleNavigate('home')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                location.pathname === '/' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               Home
             </button>
             <button
               onClick={() => handleNavigate('today')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                location.pathname === '/today' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               Today's Update
             </button>
             <button
               onClick={() => handleNavigate('archive')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+              className={`font-medium transition-colors ${
+                location.pathname === '/archive' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               Archive
             </button>

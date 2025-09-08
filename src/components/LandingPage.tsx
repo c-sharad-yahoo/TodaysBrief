@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Calendar, Archive, TrendingUp, Users, Globe } from 'lucide-react';
 import { getBriefsGroupedByMonth, getDailyBrief } from '@/utils/storage';
 import type { MonthlyArchive } from '@/utils/storage';
 
 export default function LandingPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [todaysBrief, setTodaysBrief] = useState<any>(null);
   const [monthlyArchives, setMonthlyArchives] = useState<MonthlyArchive[]>([]);
 
@@ -27,11 +27,11 @@ export default function LandingPage() {
   }, []);
 
   const handleTodayClick = () => {
-    router.push('/today');
+    navigate('/today');
   };
 
   const handleArchiveClick = (monthKey: string) => {
-    router.push(`/archive?month=${monthKey}`);
+    navigate(`/archive?month=${monthKey}`);
   };
 
   return (
@@ -121,7 +121,7 @@ export default function LandingPage() {
                 {monthlyArchives.length > 8 && (
                   <div className="text-center mt-8">
                     <button
-                      onClick={() => router.push('/archive')}
+                      onClick={() => navigate('/archive')}
                       className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-colors"
                     >
                       <Archive className="h-5 w-5" />

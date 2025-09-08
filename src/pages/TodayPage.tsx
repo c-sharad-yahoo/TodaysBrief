@@ -1,36 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Header from '../../src/components/Header';
-import DailyBriefDisplay from '../../src/components/DailyBriefDisplay';
-import { getBriefByDate, searchBriefs } from '../../src/utils/storage';
-import type { DailyBrief } from '../../src/types';
+import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import DailyBriefDisplay from '../components/DailyBriefDisplay';
+import { getDailyBrief, searchBriefs } from '../utils/storage';
+import type { DailyBrief } from '../types';
 
-export default function BriefDetailPage() {
-  const router = useRouter();
-  const { date } = router.query;
-  const [briefData, setBriefData] = useState<DailyBrief | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export default function TodayPage() {
+  const [currentData, setCurrentData] = useState<DailyBrief | null>(null);
   const [searchResults, setSearchResults] = useState<DailyBrief[]>([]);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    async function loadBrief() {
-      if (date && typeof date === 'string') {
-        try {
-          console.log('Looking for brief with date:', date);
-          const brief = await getBriefByDate(date);
-          console.log('Found brief:', brief ? brief.title : 'Not found');
-          setBriefData(brief);
-        } catch (error) {
-          console.error('Error loading brief:', error);
-        } finally {
-          setIsLoading(false);
-        }
+    async function loadTodaysBrief() {
+      try {
+        setIsLoading(true);
+        const data = await getDailyBrief();
+        setCurrentData(data);
+      } catch (error) {
+        console.error('Error loading today\'s brief:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
-    loadBrief();
-  }, [date]);
+    loadTodaysBrief();
+  }, []);
 
   const handleSearch = async (query: string) => {
     if (query.trim()) {
@@ -46,13 +42,10 @@ export default function BriefDetailPage() {
   const handleNavigate = (section: string) => {
     switch (section) {
       case 'home':
-        router.push('/');
-        break;
-      case 'today':
-        router.push('/today');
+        navigate('/');
         break;
       case 'archive':
-        router.push('/archive');
+        navigate('/archive');
         break;
       case 'about':
         // Handle about page navigation
@@ -61,40 +54,6 @@ export default function BriefDetailPage() {
         break;
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header onSearch={handleSearch} onNavigate={handleNavigate} />
-        <div className="pt-24 min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading Brief...</h2>
-            <p className="text-gray-600">Please wait while we fetch the content.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!briefData) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header onSearch={handleSearch} onNavigate={handleNavigate} />
-        <div className="pt-24 min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Brief Not Found</h2>
-            <p className="text-gray-600 mb-6">The requested brief could not be found.</p>
-            <button
-              onClick={() => router.push('/archive')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-            >
-              Back to Archive
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (isSearchMode) {
     return (
@@ -129,10 +88,40 @@ export default function BriefDetailPage() {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header onSearch={handleSearch} onNavigate={handleNavigate} />
+        <div className="pt-24 min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading Today's Brief...</h2>
+            <p className="text-gray-600">Fetching the latest content from our database...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Header onSearch={handleSearch} onNavigate={handleNavigate} />
-      <DailyBriefDisplay briefData={briefData} />
+      
+      {currentData ? (
+        <DailyBriefDisplay briefData={currentData} />
+      ) : (
+        <div className="pt-24 min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">No Brief Available</h2>
+            <p className="text-gray-600 mb-6">Today's brief hasn't been published yet. Check back later!</p>
+            <button
+              onClick={() => navigate('/archive')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Browse Archive
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
