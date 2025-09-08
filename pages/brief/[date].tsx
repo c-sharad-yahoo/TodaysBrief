@@ -14,18 +14,27 @@ export default function BriefDetailPage() {
   const [isSearchMode, setIsSearchMode] = useState(false);
 
   useEffect(() => {
-    if (date && typeof date === 'string') {
-      console.log('Looking for brief with date:', date);
-      const brief = getBriefByDate(date);
-      console.log('Found brief:', brief ? brief.title : 'Not found');
-      setBriefData(brief);
-      setIsLoading(false);
+    async function loadBrief() {
+      if (date && typeof date === 'string') {
+        try {
+          console.log('Looking for brief with date:', date);
+          const brief = await getBriefByDate(date);
+          console.log('Found brief:', brief ? brief.title : 'Not found');
+          setBriefData(brief);
+        } catch (error) {
+          console.error('Error loading brief:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
     }
+
+    loadBrief();
   }, [date]);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     if (query.trim()) {
-      const results = searchBriefs(query);
+      const results = await searchBriefs(query);
       setSearchResults(results);
       setIsSearchMode(true);
     } else {

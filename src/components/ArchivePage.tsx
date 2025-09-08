@@ -14,19 +14,27 @@ export default function ArchivePage() {
   const [filteredBriefs, setFilteredBriefs] = useState<DailyBrief[]>([]);
 
   useEffect(() => {
-    const archives = getBriefsGroupedByMonth();
-    setMonthlyArchives(archives);
+    async function loadArchives() {
+      try {
+        const archives = await getBriefsGroupedByMonth();
+        setMonthlyArchives(archives);
 
-    // If month parameter is provided, find and select that month
-    if (month && typeof month === 'string') {
-      const targetMonth = archives.find(archive => 
-        archive.month.toLowerCase().replace(' ', '-') === month.toLowerCase()
-      );
-      if (targetMonth) {
-        setSelectedMonth(targetMonth);
-        setFilteredBriefs(targetMonth.briefs);
+        // If month parameter is provided, find and select that month
+        if (month && typeof month === 'string') {
+          const targetMonth = archives.find(archive => 
+            archive.month.toLowerCase().replace(' ', '-') === month.toLowerCase()
+          );
+          if (targetMonth) {
+            setSelectedMonth(targetMonth);
+            setFilteredBriefs(targetMonth.briefs);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading archives:', error);
       }
     }
+
+    loadArchives();
   }, [month]);
 
   useEffect(() => {

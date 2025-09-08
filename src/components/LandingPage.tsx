@@ -10,8 +10,20 @@ export default function LandingPage() {
   const [monthlyArchives, setMonthlyArchives] = useState<MonthlyArchive[]>([]);
 
   useEffect(() => {
-    setTodaysBrief(getDailyBrief());
-    setMonthlyArchives(getBriefsGroupedByMonth());
+    async function loadData() {
+      try {
+        const [brief, archives] = await Promise.all([
+          getDailyBrief(),
+          getBriefsGroupedByMonth()
+        ]);
+        setTodaysBrief(brief);
+        setMonthlyArchives(archives);
+      } catch (error) {
+        console.error('Error loading landing page data:', error);
+      }
+    }
+
+    loadData();
   }, []);
 
   const handleTodayClick = () => {

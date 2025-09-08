@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { normalizePayload, validatePayload } from '@/utils/validation';
+import { supabase, handleSupabaseError } from '@/utils/supabase';
 
 interface WebhookResponse {
   success: boolean;
@@ -35,19 +36,37 @@ export default function handler(
       });
     }
 
-    // In a real implementation, you would:
-    // 1. Store in database
-    // 2. Update cache
-    // 3. Trigger real-time updates to connected clients
-    // 4. Generate sitemap and RSS
-    // 5. Send notifications
+    // Save to Supabase database
+    const { error: dbError } = await supabase
+      .from('daily_briefs')
+      .upsert({
+        title: normalized.title,
+        date: normalized.date,
+        meta: normalized.meta,
+        impact_summary: normalized.impact_summary,
+        primary_focus: normalized.primary_focus,
+        sections: normalized.sections,
+        rapid_updates: normalized.rapid_updates,
+        exam_intelligence: normalized.exam_intelligence,
+        knowledge_synthesis: normalized.knowledge_synthesis,
+        weekly_analysis: normalized.weekly_analysis
+      }, {
+        onConflict: 'date'
+      });
 
-    // For now, we'll simulate success
-    console.log('Daily content updated successfully');
+    if (dbError) {
+      console.error('Database save error:', dbError);
+      return res.status(500).json({
+        success: false,
+        message: `Database error: ${dbError.message}`
+      });
+    }
+
+    console.log('Daily content saved to database successfully');
 
     res.status(200).json({
       success: true,
-      message: 'Daily content updated successfully',
+      message: 'Daily content saved to database successfully',
       timestamp: new Date().toISOString()
     });
 
